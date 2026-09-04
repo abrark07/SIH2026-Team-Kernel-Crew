@@ -83,6 +83,7 @@ class AnalysisRunStatus(BaseModel):
     bbox: Optional[List[float]] = Field(None, description="Bounding box used")
     start_date: Optional[str] = Field(None, description="Analysis period start")
     end_date: Optional[str] = Field(None, description="Analysis period end")
+    result: Optional[dict] = Field(None, description="Analysis results")
 
 
 class RunNotFoundError(BaseModel):

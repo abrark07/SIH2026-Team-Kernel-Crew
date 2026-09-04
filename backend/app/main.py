@@ -36,6 +36,14 @@ async def lifespan(app: FastAPI):
         logger.warning(
             "FIRMS_MAP_KEY is not set — FIRMS data fetching will be unavailable."
         )
+    
+    # Check for OSM data
+    import os
+    from pathlib import Path
+    osm_file = Path(__file__).parent.parent / "data" / "osm_points.csv"
+    if not osm_file.exists():
+        logger.warning("OSM contextual dataset not found at %s; predictions will run without OSM evidence.", osm_file)
+        
     yield
     logger.info("Shutting down.")
 

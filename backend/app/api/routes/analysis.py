@@ -69,5 +69,6 @@ async def get_run_status(run_id: str) -> AnalysisRunStatus:
         bbox=run.get("bbox"),
         start_date=run.get("start_date"),
         end_date=run.get("end_date"),
+        result=run.get("result"),
     )
 
