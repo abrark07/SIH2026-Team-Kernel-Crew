@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import ThermalMap from "../components/ThermalMap";
-import PriorityWatchlist from "../components/PriorityWatchlist";
+import DetectionWatchlist from "../components/DetectionWatchlist";
 import { fetchHotspots, fetchDashboardSummary, triggerAnalysis } from "../api/hotspots";
 
 export default function Dashboard() {
@@ -98,7 +98,7 @@ export default function Dashboard() {
             {analyzing ? "Analyzing..." : "Run SIH Demo Analysis"}
           </button>
           <Link to="/list" className="text-gold underline font-sans text-sm">
-            Priority Rankings →
+            Event Rankings →
           </Link>
         </div>
       </header>
@@ -115,7 +115,7 @@ export default function Dashboard() {
           />
         </div>
         <div className="w-72 flex-shrink-0">
-          <PriorityWatchlist
+          <DetectionWatchlist
             hotspots={visibleHotspots}
             selectedId={selectedId}
             onSelectHotspot={setSelectedId}

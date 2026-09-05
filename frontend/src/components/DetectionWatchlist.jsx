@@ -1,5 +1,5 @@
 /**
- * PriorityWatchlist — sidebar ranking driven by real ML fields.
+ * DetectionWatchlist — sidebar ranking driven by real ML fields.
  *
  * Removed fake fields: population, deviationScore, priorityScore (invented).
  * Now uses: classification, behaviorType, meanFrp, activeDays, detectionCount.
@@ -14,7 +14,7 @@ import { behaviorStyle } from "../data/behaviorStyle";
 
 const PAGE_SIZE = 50;
 
-export default function PriorityWatchlist({ hotspots, selectedId, onSelectHotspot }) {
+export default function DetectionWatchlist({ hotspots, selectedId, onSelectHotspot }) {
   const [page, setPage] = useState(0);
 
   // Sort by detection count descending — real ML metric
@@ -28,7 +28,7 @@ export default function PriorityWatchlist({ hotspots, selectedId, onSelectHotspo
   return (
     <div className="w-full h-full bg-ivory border-l border-charcoal/20 flex flex-col">
       <div className="p-4 border-b border-charcoal/10">
-        <h2 className="font-serif text-lg text-teal font-bold">Priority Watchlist</h2>
+        <h2 className="font-serif text-lg text-teal font-bold">Detection Watchlist</h2>
         <p className="text-xs text-gray-500 mt-0.5">
           {ranked.length} events · ranked by detection count
         </p>
