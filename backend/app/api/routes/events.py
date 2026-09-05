@@ -23,38 +23,28 @@ _event_service = EventService(_event_repo)
     response_model=EventFeatureCollection,
     summary="List thermal events (GeoJSON)",
     description=(
-        "Returns a GeoJSON FeatureCollection of thermal events.  "
-        "Supports optional filters for run_id, classification, risk level, "
-        "date range, and minimum confidence.  "
-        "Currently returns an empty collection because the database and "
-        "ML pipeline are not yet integrated."
+        "Returns a GeoJSON FeatureCollection of thermal events. "
+        "Properties driven by frozen ML output: classification (Industrial/Uncertain), "
+        "behavior_type (Persistent/Transient), VIIRS thermal metrics, OSM distances."
     ),
 )
 async def list_events(
     run_id: Optional[str] = Query(None, description="Filter by analysis run ID"),
     classification: Optional[str] = Query(
-        None, description="Filter by classification (e.g. industrial-like)"
-    ),
-    risk_level: Optional[str] = Query(
-        None, description="Filter by risk level (high, medium, low)"
+        None, description="Filter by classification: 'Industrial' or 'Uncertain'"
     ),
     start_date: Optional[str] = Query(
-        None, description="Filter events detected on or after this date (YYYY-MM-DD)"
+        None, description="Reserved — not yet applied server-side"
     ),
     end_date: Optional[str] = Query(
-        None, description="Filter events detected on or before this date (YYYY-MM-DD)"
-    ),
-    min_confidence: Optional[float] = Query(
-        None, ge=0.0, le=1.0, description="Minimum classification confidence"
+        None, description="Reserved — not yet applied server-side"
     ),
 ) -> EventFeatureCollection:
     return await _event_service.get_events(
         run_id=run_id,
         classification=classification,
-        risk_level=risk_level,
         start_date=start_date,
         end_date=end_date,
-        min_confidence=min_confidence,
     )
 
 
@@ -64,8 +54,8 @@ async def list_events(
     responses={404: {"model": EventNotFoundError}},
     summary="Get event detail",
     description=(
-        "Returns full detail for a single thermal event.  "
-        "Returns 404 if the event ID does not exist."
+        "Returns full ML output detail for a single thermal event, including "
+        "temporal, thermal, behavior, and OSM context fields. Returns 404 if not found."
     ),
 )
 async def get_event(event_id: str) -> EventDetail:

@@ -20,9 +20,9 @@ _dashboard_service = DashboardService(_event_repo)
     response_model=DashboardSummary,
     summary="Dashboard summary statistics",
     description=(
-        "Returns aggregate statistics for the frontend dashboard.  "
-        "Values are currently zero because the database and ML pipeline "
-        "are not yet integrated."
+        "Returns aggregate statistics sourced from ML pipeline output. "
+        "Fields: total_events, industrial_events, uncertain_events, "
+        "persistent_events, transient_events, total_detections."
     ),
 )
 async def get_summary() -> DashboardSummary:

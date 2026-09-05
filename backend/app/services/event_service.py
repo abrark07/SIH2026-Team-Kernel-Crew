@@ -1,8 +1,8 @@
 """
-Business logic for thermal-event queries.
+EventService — maps normalized repository rows to API Pydantic schemas.
 
-Translates repository data into the Pydantic schemas expected by
-the route layer.
+All field mappings here are driven by the frozen ML contract.
+No values are invented.
 """
 
 from typing import Optional
@@ -13,12 +13,10 @@ from app.schemas.events import (
     EventFeature,
     EventFeatureCollection,
     EventGeometry,
-    EventLocation,
-    EventPriority,
     EventProperties,
     EventTemporal,
     EventThermal,
-    IndustrialContext,
+    OSMContext,
 )
 
 
@@ -38,9 +36,7 @@ class EventService:
         end_date: Optional[str] = None,
         min_confidence: Optional[float] = None,
     ) -> EventFeatureCollection:
-        """
-        Fetch filtered events and return a GeoJSON FeatureCollection.
-        """
+        """Fetch filtered events and return a GeoJSON FeatureCollection."""
         rows = await self._repo.get_events(
             run_id=run_id,
             classification=classification,
@@ -50,62 +46,87 @@ class EventService:
             min_confidence=min_confidence,
         )
 
-        features = [
-            EventFeature(
-                geometry=EventGeometry(
-                    coordinates=[row["longitude"], row["latitude"]],
-                ),
-                properties=EventProperties(
-                    event_id=row["event_id"],
-                    classification=row.get("classification"),
-                    confidence=row.get("confidence"),
-                    active_days=row.get("active_days"),
-                    detection_count=row.get("detection_count"),
-                    priority_score=row.get("priority_score"),
-                    risk_level=row.get("risk_level"),
-                ),
+        features = []
+        for row in rows:
+            lat = row.get("latitude")
+            lon = row.get("longitude")
+            if lat is None or lon is None:
+                continue
+            features.append(
+                EventFeature(
+                    geometry=EventGeometry(coordinates=[lon, lat]),
+                    properties=EventProperties(
+                        event_id=row["event_id"],
+                        classification=row.get("classification"),
+                        behavior_type=row.get("behavior_type"),
+                        behavior_cluster=row.get("behavior_cluster"),
+                        active_days=row.get("active_days"),
+                        duration_days=row.get("duration_days"),
+                        detection_count=row.get("detection_count"),
+                        activity_frequency=row.get("activity_frequency"),
+                        mean_frp=row.get("mean_frp"),
+                        max_frp=row.get("max_frp"),
+                        mean_bright_ti4=row.get("mean_bright_ti4"),
+                        max_bright_ti4=row.get("max_bright_ti4"),
+                        spatial_diameter_km=row.get("spatial_diameter_km"),
+                        nearest_industrial_zone_km=row.get("nearest_industrial_zone_km"),
+                        nearest_factory_km=row.get("nearest_factory_km"),
+                        nearest_works_km=row.get("nearest_works_km"),
+                        nearest_mine_km=row.get("nearest_mine_km"),
+                        nearest_brick_km=row.get("nearest_brick_km"),
+                        nearest_depot_km=row.get("nearest_depot_km"),
+                        nearest_power_km=row.get("nearest_power_km"),
+                        nearest_other_industry_km=row.get("nearest_other_industry_km"),
+                        osm_industrial_evidence=row.get("osm_industrial_evidence"),
+                    ),
+                )
             )
-            for row in rows
-        ]
 
         return EventFeatureCollection(features=features)
 
     async def get_event_detail(self, event_id: str) -> Optional[EventDetail]:
-        """
-        Fetch full detail for one event.  Returns ``None`` when the
-        event does not exist (the route layer maps this to 404).
-        """
+        """Fetch full detail for one event. Returns None when not found."""
         row = await self._repo.get_event_by_id(event_id)
         if row is None:
             return None
 
+        lat = row.get("latitude")
+        lon = row.get("longitude")
+
         return EventDetail(
             event_id=row["event_id"],
             classification=row.get("classification"),
-            confidence=row.get("confidence"),
-            location=EventLocation(
-                latitude=row["latitude"],
-                longitude=row["longitude"],
-            ),
+            behavior_type=row.get("behavior_type"),
+            behavior_cluster=row.get("behavior_cluster"),
+            location={"latitude": lat, "longitude": lon},
             temporal=EventTemporal(
-                first_detected=row.get("first_detected"),
-                last_detected=row.get("last_detected"),
+                start_date=row.get("start_date"),
+                end_date=row.get("end_date"),
                 active_days=row.get("active_days"),
                 duration_days=row.get("duration_days"),
                 detection_count=row.get("detection_count"),
+                activity_frequency=row.get("activity_frequency"),
+                detections_per_active_day=row.get("detections_per_active_day"),
             ),
             thermal=EventThermal(
                 mean_frp=row.get("mean_frp"),
                 max_frp=row.get("max_frp"),
-                mean_brightness=row.get("mean_brightness"),
+                std_frp=row.get("std_frp"),
+                mean_bright_ti4=row.get("mean_bright_ti4"),
+                max_bright_ti4=row.get("max_bright_ti4"),
+                mean_bright_ti5=row.get("mean_bright_ti5"),
+                max_bright_ti5=row.get("max_bright_ti5"),
+                spatial_diameter_km=row.get("spatial_diameter_km"),
             ),
-            industrial_context=IndustrialContext(
-                nearest_facility=row.get("nearest_facility"),
-                facility_type=row.get("facility_type"),
-                distance_m=row.get("distance_m"),
-            ),
-            priority=EventPriority(
-                score=row.get("priority_score"),
-                risk_level=row.get("risk_level"),
+            osm_context=OSMContext(
+                osm_industrial_evidence=row.get("osm_industrial_evidence"),
+                nearest_industrial_zone_km=row.get("nearest_industrial_zone_km"),
+                nearest_factory_km=row.get("nearest_factory_km"),
+                nearest_works_km=row.get("nearest_works_km"),
+                nearest_mine_km=row.get("nearest_mine_km"),
+                nearest_brick_km=row.get("nearest_brick_km"),
+                nearest_depot_km=row.get("nearest_depot_km"),
+                nearest_power_km=row.get("nearest_power_km"),
+                nearest_other_industry_km=row.get("nearest_other_industry_km"),
             ),
         )

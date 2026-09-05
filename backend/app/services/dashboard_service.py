@@ -14,11 +14,8 @@ class DashboardService:
 
     async def get_summary(self) -> DashboardSummary:
         """
-        Return current summary statistics.
-
-        Values come from the repository (currently all zeros because
-        there is no database).  Once the DB and ML pipeline are
-        integrated, this will return real aggregate data.
+        Return current summary statistics aggregated from ML pipeline output.
+        All values sourced from db.json — no invented figures.
         """
         stats = await self._repo.get_summary_stats()
         return DashboardSummary(**stats)
