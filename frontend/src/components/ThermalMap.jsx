@@ -1,4 +1,4 @@
-/**
+﻿/**
  * ThermalMap — MapLibre GL map with WebGL circle layers.
  *
  * Performance: All events are rendered as WebGL data-driven circle
@@ -264,7 +264,7 @@ export default function ThermalMap({ hotspots, selectedId, onSelectHotspot, onBo
         ref={mapRef}
         initialViewState={{ longitude: 83.5, latitude: 23.0, zoom: 5.5, pitch: 20 }}
         style={{ width: "100%", height: "100%", position: "absolute", inset: 0 }}
-        mapStyle="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json"
+        mapStyle={`https://api.maptiler.com/maps/hybrid/style.json?key=${import.meta.env.VITE_MAPTILER_KEY}`}
         cursor={cursor}
         interactiveLayerIds={["events-circle"]}
         onClick={handleMapClick}

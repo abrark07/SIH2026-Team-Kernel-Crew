@@ -58,9 +58,6 @@ export default function Dashboard() {
           <h1 className="font-serif text-4xl text-teal font-extrabold tracking-tight animate-pulse">
             GeoSentinel
           </h1>
-          <p className="text-xs text-charcoal/50 tracking-widest uppercase">
-            Loading ML pipeline data…
-          </p>
         </div>
       </div>
     );
